@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #003D87;
+  --primary-hover: #002D65;
+  --background: #ffffff;
+  --foreground: #0f172a;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), sans-serif;
+}
+
+/* Custom Component Classes */
+.btn-primary {
+  background-color: #003D87;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  transition: background-color 150ms;
+}
+
+.btn-primary:hover {
+  background-color: #002D65;
+}
