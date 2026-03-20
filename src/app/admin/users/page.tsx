@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { prisma } from '@/lib/prisma';
 import { updateUserTagId } from '@/app/actions/admin';
 import Link from 'next/link';
