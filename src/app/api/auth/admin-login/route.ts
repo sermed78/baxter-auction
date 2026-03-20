@@ -13,13 +13,15 @@ export async function POST(request: Request) {
 
         const user = await prisma.user.findUnique({ where: { email } });
 
+        console.log('LOGIN ATTEMPT:', { email, foundUser: !!user, role: user?.role, storedPw: user?.password, inputPw: password });
+
         if (!user || user.role !== 'ADMIN') {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
 
-        // Verify password (plain text for now as per seed, implementing bcrypt next)
-        // const isValid = await bcrypt.compare(password, user.password || '');
-        const isValid = password === user.password; // TEMPORARY for demo/seed match
+        // Verify password (plain text comparison)
+        const isValid = password === user.password;
+        console.log('PASSWORD CHECK:', { isValid, stored: user.password, input: password });
 
         if (!isValid) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });

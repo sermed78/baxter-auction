@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function main() {
     const email = 'sermed78@gmail.com';
-    const password = 'testtest1';
+    const password = 'D!@bl5544bZ.';
 
     const user = await prisma.user.upsert({
         where: { email },
