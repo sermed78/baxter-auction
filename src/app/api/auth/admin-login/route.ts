@@ -11,24 +11,14 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing credentials' }, { status: 400 });
         }
 
-        // DEBUG: Check what DATABASE_URL Vercel is using
-        console.log('DATABASE_URL:', process.env.DATABASE_URL?.substring(0, 40) + '...');
-
-        // DEBUG: Check if ANY users exist
-        const allUsers = await prisma.user.findMany({ select: { email: true, role: true } });
-        console.log('ALL USERS IN DB:', JSON.stringify(allUsers));
-
         const user = await prisma.user.findUnique({ where: { email } });
-
-        console.log('LOGIN ATTEMPT:', { email, foundUser: !!user, role: user?.role, storedPw: user?.password, inputPw: password });
 
         if (!user || user.role !== 'ADMIN') {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
 
-        // Verify password (plain text comparison)
+        // Verify password
         const isValid = password === user.password;
-        console.log('PASSWORD CHECK:', { isValid, stored: user.password, input: password });
 
         if (!isValid) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
