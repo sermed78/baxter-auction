@@ -6,7 +6,16 @@ import Link from 'next/link';
 
 
 export default async function AdminDashboard() {
-    const items = await prisma.auctionItem.findMany({ orderBy: { createdAt: 'desc' } });
+    const items = await prisma.auctionItem.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: {
+            bids: {
+                orderBy: { amount: 'desc' },
+                take: 1,
+                include: { user: true }
+            }
+        }
+    });
     const users = await prisma.user.findMany({
         where: { role: 'USER' },
         orderBy: { email: 'asc' }
@@ -37,7 +46,12 @@ export default async function AdminDashboard() {
                         {items.length === 0 ? (
                             <p className="text-slate-500 italic">No items yet.</p>
                         ) : (
-                            items.map((item) => (
+                            items.map((item) => {
+                                const isEnded = new Date(item.endTime) < new Date();
+                                const highestBid = item.bids[0];
+                                const winner = isEnded ? highestBid?.user : null;
+
+                                return (
                                 <div key={item.id} className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex justify-between items-center">
                                     <div className="space-y-1">
                                         {/* Link to Edit Page */}
@@ -46,12 +60,20 @@ export default async function AdminDashboard() {
                                         </Link>
                                         <p className="text-slate-500 text-sm">
                                             Target End: {item.endTime.toLocaleDateString()}
-                                            {new Date(item.endTime) < new Date() && <span className="text-red-600 font-bold ml-2">(Ended)</span>}
-                                            {new Date(item.endTime) > new Date() && <span className="text-green-600 font-bold ml-2">(Active)</span>}
+                                            {isEnded && <span className="text-red-600 font-bold ml-2">(Ended)</span>}
+                                            {!isEnded && <span className="text-green-600 font-bold ml-2">(Active)</span>}
                                         </p>
-                                        <p className="text-slate-900 mt-1">Starting Bid: {item.startingBid} kr</p>
+                                        <p className="text-slate-900 mt-1">
+                                            {isEnded ? 'Winning' : 'Current'} Bid: {(highestBid?.amount || item.startingBid).toLocaleString('sv-SE')} kr
+                                        </p>
+                                        {winner && (
+                                            <p className="text-[#003D87] font-semibold mt-1">
+                                                🏆 Winner: {winner.firstName} {winner.surname} — Tag #{winner.tagId}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex gap-3">
+                                        {!isEnded && (
                                         <form action={async () => {
                                             'use server';
                                             await closeAuction(item.id);
@@ -60,6 +82,7 @@ export default async function AdminDashboard() {
                                                 Close
                                             </button>
                                         </form>
+                                        )}
                                         <form action={async () => {
                                             'use server';
                                             await deleteItem(item.id);
@@ -70,7 +93,8 @@ export default async function AdminDashboard() {
                                         </form>
                                     </div>
                                 </div>
-                            ))
+                            );
+                            })
                         )}
                     </div>
                 </section>
