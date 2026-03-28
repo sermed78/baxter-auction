@@ -5,11 +5,14 @@ import AuctionList from './AuctionList';
 
 export default async function AuctionPage() {
     const items = await prisma.auctionItem.findMany({
-        where: {
-            endTime: { gt: new Date() }
-        },
         orderBy: { endTime: 'asc' },
-        include: { bids: { orderBy: { amount: 'desc' }, take: 1 } }
+        include: {
+            bids: {
+                orderBy: { amount: 'desc' },
+                take: 1,
+                include: { user: true }
+            }
+        }
     });
 
     return <AuctionList items={items} />;

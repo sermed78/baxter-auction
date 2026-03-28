@@ -23,6 +23,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
     const minBid = item.bids.length > 0 ? item.bids[0].amount + 1 : item.startingBid;
     const timeLeft = new Date(item.endTime).getTime() - Date.now();
     const isExpired = timeLeft < 0;
+    const winner = isExpired ? item.bids[0]?.user : null;
 
     return (
         <div className="max-w-4xl mx-auto">
@@ -37,10 +38,15 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                         <img
                             src={item.imageUrl}
                             alt={item.title}
-                            className="object-cover w-full h-full"
+                            className={`object-cover w-full h-full ${isExpired ? 'grayscale-[30%]' : ''}`}
                         />
                     ) : (
                         <div className="flex items-center justify-center h-full text-gray-400">No Image</div>
+                    )}
+                    {isExpired && (
+                        <div className="absolute top-4 right-4 bg-gray-800 text-white text-sm font-bold px-3 py-1.5 rounded">
+                            ENDED
+                        </div>
                     )}
                 </div>
 
@@ -49,7 +55,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                     <div>
                         <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">{item.title}</h1>
                         <p className="text-sm text-gray-500">
-                            Ends on {new Date(item.endTime).toLocaleDateString()}
+                            {isExpired ? 'Ended on' : 'Ends on'} {new Date(item.endTime).toLocaleDateString()}
                         </p>
                     </div>
 
@@ -58,27 +64,56 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                     </p>
 
                     <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 space-y-4">
-                        <div className="flex justify-between items-baseline">
-                            <span className="text-sm font-medium text-gray-500 uppercase">Current Bid</span>
-                            <span className="text-2xl font-mono font-bold text-[#003D87]">
-                                {currentBid.toLocaleString('sv-SE')} kr
-                            </span>
-                        </div>
-
-                        {!isExpired ? (
-                            session ? (
-                                <BidForm itemId={item.id} minBid={minBid} userId={session.id} />
-                            ) : (
-                                <div className="text-center pt-2">
-                                    <Link href="/" className="text-[#003D87] font-medium hover:underline">
-                                        Log in to place a bid
-                                    </Link>
+                        {isExpired ? (
+                            /* Ended auction - show winner */
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-baseline">
+                                    <span className="text-sm font-medium text-gray-500 uppercase">Winning Bid</span>
+                                    <span className="text-2xl font-mono font-bold text-[#003D87]">
+                                        {currentBid.toLocaleString('sv-SE')} kr
+                                    </span>
                                 </div>
-                            )
-                        ) : (
-                            <div className="text-center p-2 bg-gray-200 rounded text-gray-600 font-medium">
-                                Auction Closed
+
+                                {winner && (
+                                    <div className="pt-3 border-t border-gray-200">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-medium text-gray-500 uppercase">Winner</span>
+                                            <div className="text-right">
+                                                <p className="font-mono font-bold text-[#003D87] text-lg">
+                                                    Tag #{winner.tagId}
+                                                </p>
+                                                <p className="text-sm text-gray-500">
+                                                    {winner.firstName} {winner.surname}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="text-center p-2 bg-gray-200 rounded text-gray-600 font-medium">
+                                    Auction Closed
+                                </div>
                             </div>
+                        ) : (
+                            /* Active auction - show bid form */
+                            <>
+                                <div className="flex justify-between items-baseline">
+                                    <span className="text-sm font-medium text-gray-500 uppercase">Current Bid</span>
+                                    <span className="text-2xl font-mono font-bold text-[#003D87]">
+                                        {currentBid.toLocaleString('sv-SE')} kr
+                                    </span>
+                                </div>
+
+                                {session ? (
+                                    <BidForm itemId={item.id} minBid={minBid} userId={session.id} />
+                                ) : (
+                                    <div className="text-center pt-2">
+                                        <Link href="/" className="text-[#003D87] font-medium hover:underline">
+                                            Log in to place a bid
+                                        </Link>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
