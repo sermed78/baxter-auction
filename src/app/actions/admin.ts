@@ -277,3 +277,24 @@ export async function resetAuction(itemId: string) {
     revalidatePath(`/admin/items/${itemId}/edit`);
     redirect(`/admin/items/${itemId}/edit`);
 }
+
+export async function deleteUser(userId: string) {
+    const session = await getSession();
+    if (!session || session.role !== 'ADMIN') {
+        throw new Error('Unauthorized');
+    }
+
+    // Prevent deleting yourself
+    if (session.id === userId) {
+        throw new Error('Cannot delete your own account');
+    }
+
+    // Check if user has any bids
+    const bidCount = await prisma.bid.count({ where: { userId } });
+    if (bidCount > 0) {
+        throw new Error('Cannot delete user with existing bids. Remove their bids first.');
+    }
+
+    await prisma.user.delete({ where: { id: userId } });
+    revalidatePath('/admin/users');
+}

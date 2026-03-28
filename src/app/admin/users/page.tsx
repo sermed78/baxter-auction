@@ -1,8 +1,9 @@
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
-import { updateUserTagId } from '@/app/actions/admin';
+import { updateUserTagId, deleteUser } from '@/app/actions/admin';
 import Link from 'next/link';
+import DeleteUserButton from './DeleteUserButton';
 
 export default async function AdminUsersPage() {
     const users = await prisma.user.findMany({
@@ -46,21 +47,26 @@ export default async function AdminUsersPage() {
                                         {user.tagId || '-'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                        <form action={async (formData) => {
-                                            'use server';
-                                            const newTag = formData.get('tagId') as string;
-                                            await updateUserTagId(user.id, newTag);
-                                        }} className="flex gap-2">
-                                            <input
-                                                name="tagId"
-                                                defaultValue={user.tagId || ''}
-                                                className="w-20 px-2 py-1 border rounded text-sm"
-                                                placeholder="Tag ID"
-                                            />
-                                            <button type="submit" className="text-blue-600 hover:text-blue-900 text-xs font-medium">
-                                                Update
-                                            </button>
-                                        </form>
+                                        <div className="flex gap-2 items-center">
+                                            <form action={async (formData) => {
+                                                'use server';
+                                                const newTag = formData.get('tagId') as string;
+                                                await updateUserTagId(user.id, newTag);
+                                            }} className="flex gap-2">
+                                                <input
+                                                    name="tagId"
+                                                    defaultValue={user.tagId || ''}
+                                                    className="w-20 px-2 py-1 border rounded text-sm"
+                                                    placeholder="Tag ID"
+                                                />
+                                                <button type="submit" className="text-blue-600 hover:text-blue-900 text-xs font-medium">
+                                                    Update
+                                                </button>
+                                            </form>
+                                            {user.role !== 'ADMIN' && (
+                                                <DeleteUserButton userId={user.id} userEmail={user.email} />
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
