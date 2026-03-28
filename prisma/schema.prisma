@@ -23,17 +23,18 @@ model User {
 }
 
 model AuctionItem {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  imageUrl    String?
-  startingBid Float
-  currentBid  Float
-  startTime   DateTime @default(now())
-  endTime     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  bids        Bid[]
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  imageUrl        String?
+  startingBid     Float
+  currentBid      Float
+  startTime       DateTime @default(now())
+  endTime         DateTime
+  winnerNotified  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  bids            Bid[]
 }
 
 model Bid {

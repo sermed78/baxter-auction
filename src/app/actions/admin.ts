@@ -173,7 +173,7 @@ export async function closeAuction(id: string) {
     // Close auction by setting endTime to now
     await prisma.auctionItem.update({
         where: { id },
-        data: { endTime: new Date() }
+        data: { endTime: new Date(), winnerNotified: true }
     });
 
     const winner = item.bids[0]?.user;
