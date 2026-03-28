@@ -14,6 +14,7 @@ export default function BidForm({
 }) {
     const [amount, setAmount] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (formData: FormData) => {
         const bidVal = parseFloat(formData.get('amount') as string);
@@ -22,8 +23,19 @@ export default function BidForm({
             return;
         }
         setError('');
-        await placeBid(formData);
-        setAmount('');
+        setLoading(true);
+        try {
+            const result = await placeBid(formData);
+            if (result?.error) {
+                setError(result.error);
+            } else {
+                setAmount('');
+            }
+        } catch {
+            setError('Something went wrong. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -57,9 +69,10 @@ export default function BidForm({
 
             <button
                 type="submit"
-                className="w-full bg-[#003D87] hover:bg-[#002D65] text-white font-medium py-2 px-4 rounded transition-colors shadow-sm"
+                disabled={loading}
+                className="w-full bg-[#003D87] hover:bg-[#002D65] text-white font-medium py-2 px-4 rounded transition-colors shadow-sm disabled:opacity-50"
             >
-                Place Bid
+                {loading ? 'Placing bid...' : 'Place Bid'}
             </button>
         </form>
     );

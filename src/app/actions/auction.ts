@@ -3,21 +3,20 @@
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 
 import { resend } from '@/lib/resend';
 
-export async function placeBid(formData: FormData) {
+export async function placeBid(formData: FormData): Promise<{ error?: string }> {
     const session = await getSession();
     if (!session) {
-        throw new Error('You must be logged in to place a bid');
+        return { error: 'You must be logged in to place a bid' };
     }
 
     const itemId = formData.get('itemId') as string;
     const amount = parseFloat(formData.get('amount') as string);
 
     if (!itemId || isNaN(amount)) {
-        throw new Error('Invalid bid data');
+        return { error: 'Invalid bid data' };
     }
 
     const item = await prisma.auctionItem.findUnique({
@@ -26,27 +25,25 @@ export async function placeBid(formData: FormData) {
     });
 
     if (!item) {
-        throw new Error('Item not found');
+        return { error: 'Item not found' };
     }
 
     if (new Date() < new Date(item.startTime)) {
-        throw new Error('Auction has not started yet');
+        return { error: 'Auction has not started yet' };
     }
 
     if (new Date(item.endTime) < new Date()) {
-        throw new Error('Auction has ended');
+        return { error: 'Auction has ended' };
     }
 
     const currentBid = item.bids[0]?.amount || item.startingBid;
 
-    // If there are existing bids, new bid must be higher than current
     if (item.bids.length > 0 && amount <= currentBid) {
-        throw new Error('Bid must be higher than the current bid');
+        return { error: 'Bid must be higher than the current bid' };
     }
 
-    // If no bids, must start at startingBid
     if (amount < item.startingBid) {
-        throw new Error('Bid must be at least the starting bid');
+        return { error: 'Bid must be at least the starting bid' };
     }
 
     // Check for outbid and send notification
@@ -73,10 +70,17 @@ export async function placeBid(formData: FormData) {
         data: {
             amount,
             itemId,
-            userId: session.id,
+            userId: session.id as string,
         },
+    });
+
+    // Update the item's currentBid
+    await prisma.auctionItem.update({
+        where: { id: itemId },
+        data: { currentBid: amount },
     });
 
     revalidatePath(`/auction`);
     revalidatePath(`/auction/item/${itemId}`);
+    return {};
 }
