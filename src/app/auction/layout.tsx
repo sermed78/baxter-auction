@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getSession } from '@/lib/session';
+import LogoutButton from './LogoutButton';
 
 export default async function AuctionLayout({
     children,
@@ -33,13 +34,11 @@ export default async function AuctionLayout({
                         </div>
                     )}
 
-                    <nav className="flex gap-6">
+                    <nav className="flex gap-6 items-center">
                         <Link href="/auction" className="text-sm font-medium text-gray-700 hover:text-[#003D87]">
                             Auction
                         </Link>
-                        <Link href="/admin" className="text-sm font-medium text-gray-700 hover:text-[#003D87]">
-                            Admin
-                        </Link>
+                        <LogoutButton />
                     </nav>
                 </div>
             </header>

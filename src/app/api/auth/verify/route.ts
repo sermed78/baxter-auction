@@ -3,6 +3,11 @@ import { encrypt } from '@/lib/session';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Prevent email client prefetch (HEAD) from consuming the token
+export async function HEAD() {
+    return new NextResponse(null, { status: 200 });
+}
+
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const token = searchParams.get('token');

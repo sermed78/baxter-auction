@@ -7,28 +7,29 @@ export default function LandingPage() {
     const [email, setEmail] = useState('');
     const [firstName, setFirstName] = useState('');
     const [surname, setSurname] = useState('');
+    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [debugLink, setDebugLink] = useState<string | null>(null);
+    const [error, setError] = useState('');
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setDebugLink(null);
+        setError('');
         try {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, firstName, surname }),
+                body: JSON.stringify({ email, firstName, surname, password }),
             });
             const data = await res.json();
             if (res.ok) {
-                alert('Magic link sent! Check your email.');
-                if (data.debugLink) {
-                    setDebugLink(data.debugLink);
-                }
+                window.location.href = '/auction';
+            } else {
+                setError(data.error || 'Login failed');
             }
         } catch (err) {
             console.error(err);
+            setError('Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -40,9 +41,15 @@ export default function LandingPage() {
                 <div className="flex flex-col items-center space-y-4">
                     <Image src="/logo.png" alt="Baxter Logo" width={100} height={100} className="object-contain" />
                     <p className="text-sm text-slate-600 text-center">
-                        Welcome to Baxter Sweden digital auction house. <br />Register to sign in.
+                        Welcome to Baxter Sweden digital auction house. <br />Register or sign in below.
                     </p>
                 </div>
+
+                {error && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -77,25 +84,28 @@ export default function LandingPage() {
                             required
                         />
                     </div>
+                    <div>
+                        <input
+                            type="password"
+                            placeholder="Password (min 6 characters)"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none"
+                            required
+                            minLength={6}
+                        />
+                    </div>
                     <button
                         type="submit"
                         disabled={loading}
                         className="w-full bg-[#003D87] hover:bg-[#002D65] text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50"
                     >
-                        {loading ? 'Sending Link...' : 'Sign In with Email'}
+                        {loading ? 'Signing in...' : 'Sign In'}
                     </button>
                     <p className="text-xs text-center text-slate-400">
-                        Secure passwordless access
+                        New users will be registered automatically
                     </p>
                 </form>
-
-                {debugLink && (
-                    <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md text-sm">
-                        <p className="font-bold text-yellow-800 mb-2">Development Mode Link:</p>
-                        <p className="break-all font-mono text-xs text-slate-600 mb-2">{debugLink}</p>
-                        <a href={debugLink} className="text-blue-600 hover:underline font-medium">Click here to Login directly</a>
-                    </div>
-                )}
             </div>
         </main>
     );
