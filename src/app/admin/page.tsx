@@ -20,7 +20,7 @@ export default async function AdminDashboard() {
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
                     <div className="flex gap-4">
-                        <Link href="/" className="px-4 py-2 text-slate-600 hover:text-slate-900">View Site</Link>
+                        <Link href="/auction" className="px-4 py-2 text-slate-600 hover:text-slate-900">View Site</Link>
                     </div>
                 </div>
 
