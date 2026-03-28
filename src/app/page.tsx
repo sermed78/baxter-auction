@@ -8,6 +8,7 @@ export default function LandingPage() {
     const [firstName, setFirstName] = useState('');
     const [surname, setSurname] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -15,6 +16,13 @@ export default function LandingPage() {
         e.preventDefault();
         setLoading(true);
         setError('');
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
@@ -90,6 +98,17 @@ export default function LandingPage() {
                             placeholder="Password (min 6 characters)"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none"
+                            required
+                            minLength={6}
+                        />
+                    </div>
+                    <div>
+                        <input
+                            type="password"
+                            placeholder="Confirm password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none"
                             required
                             minLength={6}
