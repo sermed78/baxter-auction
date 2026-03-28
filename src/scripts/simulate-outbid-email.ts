@@ -28,7 +28,7 @@ async function main() {
 
     try {
         const data = await resend.emails.send({
-            from: 'Baxter Auction <updates@resend.dev>',
+            from: 'Baxter Auction <noreply@baxterauction.se>',
             to: toEmail,
             subject: `You have been outbid on ${itemTitle}`,
             html: `

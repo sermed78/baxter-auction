@@ -77,7 +77,7 @@ export async function POST(request: Request) {
 
         try {
             const result = await resend.emails.send({
-                from: 'Baxter Auction <onboarding@resend.dev>',
+                from: 'Baxter Auction <noreply@baxterauction.se>',
                 to: email,
                 subject: 'Your Login Link',
                 html: `<p>Click here to login: <a href="${magicLink}">${magicLink}</a></p>`

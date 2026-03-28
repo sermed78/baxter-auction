@@ -54,7 +54,7 @@ export async function placeBid(formData: FormData) {
     if (previousHighestBid && previousHighestBid.userId !== session.id) {
         try {
             await resend.emails.send({
-                from: 'Baxter Auction <updates@resend.dev>',
+                from: 'Baxter Auction <noreply@baxterauction.se>',
                 to: previousHighestBid.user.email,
                 subject: `You have been outbid on ${item.title}`,
                 html: `

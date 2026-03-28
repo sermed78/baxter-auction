@@ -20,7 +20,7 @@ async function main() {
 
     try {
         const data = await resend.emails.send({
-            from: 'Baxter Auction <updates@resend.dev>', // Default testing domain
+            from: 'Baxter Auction <noreply@baxterauction.se>',
             to: toEmail,
             subject: 'Baxter Auction - Test Notification',
             html: `

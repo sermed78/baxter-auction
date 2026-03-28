@@ -180,7 +180,7 @@ export async function closeAuction(id: string) {
     if (winner && winner.email) {
         try {
             await resend.emails.send({
-                from: 'Baxter Auction <updates@resend.dev>',
+                from: 'Baxter Auction <noreply@baxterauction.se>',
                 to: winner.email,
                 subject: `You won the auction: ${item.title}`,
                 html: `
