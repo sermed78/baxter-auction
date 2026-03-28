@@ -28,10 +28,6 @@ export async function placeBid(formData: FormData): Promise<{ error?: string }> 
         return { error: 'Item not found' };
     }
 
-    if (new Date() < new Date(item.startTime)) {
-        return { error: 'Auction has not started yet' };
-    }
-
     if (new Date(item.endTime) < new Date()) {
         return { error: 'Auction has ended' };
     }
